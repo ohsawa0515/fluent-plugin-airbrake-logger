@@ -8,7 +8,7 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
     'WARNING'  => 30,
     'WARN'     => 30,
     'INFO'     => 20,
-    'DEBUG'    => 10,
+    'DEBUG'    => 10
   }
 
   config_param :api_key, :string, :default => nil
@@ -43,7 +43,7 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
   config_param :log_path, :string, :default => nil
 
   def initialize
-    super 
+    super
     require 'airbrake'
   end
 
@@ -53,7 +53,7 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
     Airbrake.configure do |config|
       config.api_key = @api_key
       config.host    = @host
-      config.port    = @port ? @port: (@secure ? 443: 80)
+      config.port    = @port ? @port : (@secure ? 443 : 80)
       config.secure  = @secure
       config.use_system_ssl_cert_chain = @use_system_ssl_cert_chain
       config.http_open_timeout = @http_open_timeout if @http_open_timeout
@@ -82,18 +82,19 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
     @loglevel = LOGLEVEL_MAP[@loglevel.upcase]
   end
 
-  def notification_needed(tag, time, record)
+  def notification_needed(_tag, _time, record)
     severity_map = LOGLEVEL_MAP[record['severity']]
-    record['severity'] ? severity_map >= @loglevel: false
+
+    record['severity'] ? severity_map >= @loglevel : false
   end
 
   def build_error_message(record)
     error_message = record['error_message'] ? record['error_message'] : 'Notification'
-    return "[#{record['severity']}] #{error_message}"
+    "[#{record['severity']}] #{error_message}"
   end
 
   def build_error_backtrace(record)
-    return record['error_backtrace'] ? record['error_backtrace'] : record['backtrace']
+    record['error_backtrace'] ? record['error_backtrace'] : record['backtrace']
   end
 
   def emit(tag, es, chain)
@@ -101,7 +102,8 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
 
       next unless notification_needed(tag, time, record)
 
-      other_record = record.reject{|k,v| %w(error_class error_backtrace error_message application_name service_name).include?(k)}
+      other_record = record.reject {|k, _| %w(error_class error_backtrace error_message application_name service_name).include?(k) }
+
       @notice  = Airbrake::Notice.new(@aconf.merge(
         :error_class   => record['error_class'],
         :backtrace     => build_error_backtrace(record),
@@ -109,7 +111,7 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
         :hostname      => record['hostname'],
         :component     => record['application_name'],
         :action        => record['service_name'],
-        :cgi_data      => other_record,
+        :cgi_data      => other_record
       ))
 
       @sender.send_to_airbrake(@notice) if @notice
@@ -117,4 +119,3 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
     chain.next
   end
 end
-
