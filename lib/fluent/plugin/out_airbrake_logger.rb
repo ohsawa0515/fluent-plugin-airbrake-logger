@@ -94,7 +94,7 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
   end
 
   def build_error_backtrace(record)
-    record['error_backtrace'] ? record['error_backtrace'] : record['backtrace']
+    return record['error_backtrace'] ? record['error_backtrace'] : (record['backtrace'] ? record['backtrace'] : "")
   end
 
   def emit(tag, es, chain)
