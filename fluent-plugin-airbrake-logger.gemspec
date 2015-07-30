@@ -8,12 +8,12 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Shuichi Ohsawa"]
   spec.email         = ["ohsawa0515@gmail.com"]
 
-  spec.summary       = %q{Output filter plugin to Airbrake(Errbit) by fluent-logger-ruby}
-  spec.description   = %q{Output filter plugin to Airbrake(Errbit) by fluent-logger-ruby}
+  spec.summary       = %q{Output filter plugin to Airbrake(Errbit) by fluent-logger}
+  spec.description   = %q{Output filter plugin to Airbrake(Errbit) by fluent-logger}
   spec.homepage      = "https://github.com/ohsawa0515/fluent-plugin-airbrake-logger"
   spec.license       = "MIT"
 
-  spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  spec.files         = `git ls-files`.split($\)
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
