@@ -51,7 +51,6 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
     super
 
     Airbrake.configure do |config|
-      config.api_key = @api_key
       config.host    = @host
       config.port    = @port ? @port : (@secure ? 443 : 80)
       config.secure  = @secure
@@ -105,6 +104,7 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
       other_record = record.reject {|k, _| %w(error_class error_backtrace error_message application_name service_name).include?(k) }
 
       @notice  = Airbrake::Notice.new(@aconf.merge(
+        :api_key       => @api_key,
         :error_class   => record['error_class'],
         :backtrace     => build_error_backtrace(record),
         :error_message => build_error_message(record),
