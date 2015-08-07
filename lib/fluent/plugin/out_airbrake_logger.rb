@@ -1,4 +1,4 @@
-class Fluent::ErrbitGeesOutput < Fluent::Output
+class Fluent::AirbrakeLoggerOutput < Fluent::Output
   Fluent::Plugin.register_output('airbrake_logger', self)
 
   LOG_LEVEL_MAP = {
