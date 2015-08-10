@@ -96,12 +96,17 @@ class Fluent::AirbrakeLoggerOutput < Fluent::Output
   end
 
   def build_error_message(record)
-    error_message = record[@error_message_record] ? record[@error_message_record] : 'Notification'
-    "[#{record[@log_level_record]}] #{error_message}"
+    error_message = record[@error_message_record] ? cut_down_message(record[@error_message_record]) :
+      (record['message'] ? cut_down_message(record['message']) : 'Notification')
+    "[#{record[@log_level_record]}] #{record[@error_class_record]} #{error_message}"
+  end
+
+  def cut_down_message(message)
+    message.is_a?(Array) ? message.join[0, 60] : message[0, 60]
   end
 
   def build_error_backtrace(record)
-    return record[@batcktrace_record] ? record[@batcktrace_record] : (record['backtrace'] ? record['backtrace'] : "")
+    record[@batcktrace_record] ? record[@batcktrace_record] : (record['backtrace'] ? record['backtrace'] : "")
   end
 
   def emit(tag, es, chain)
