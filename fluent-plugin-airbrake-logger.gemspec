@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Shuichi Ohsawa"]
   spec.email         = ["ohsawa0515@gmail.com"]
 
-  spec.summary       = %q{Output filter plugin to Airbrake(Errbit) by fluent-logger}
-  spec.description   = %q{Output filter plugin to Airbrake(Errbit) by fluent-logger}
+  spec.summary       = %q{Fluent output plugin to Airbrake(Errbit) by fluent-logger}
+  spec.description   = %q{Fluent output plugin to Airbrake(Errbit) by fluent-logger}
   spec.homepage      = "https://github.com/ohsawa0515/fluent-plugin-airbrake-logger"
   spec.license       = "MIT"
 
