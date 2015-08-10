@@ -1,7 +1,7 @@
-class Fluent::ErrbitGeesOutput < Fluent::Output
+class Fluent::AirbrakeLoggerOutput < Fluent::Output
   Fluent::Plugin.register_output('airbrake_logger', self)
 
-  LOGLEVEL_MAP = {
+  LOG_LEVEL_MAP = {
     'CRITICAL' => 50,
     'FATAL'    => 50,
     'ERROR'    => 40,
@@ -10,6 +10,8 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
     'INFO'     => 20,
     'DEBUG'    => 10
   }
+
+  CUT_OFF_CHAR = 60
 
   config_param :api_key, :string, :default => nil
   config_param :host, :string, :default => 'localhost'
@@ -39,8 +41,16 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
   config_param :user_attributes, :string, :default => nil
   config_param :framework, :string, :default => nil
   config_param :project_id, :string, :default => nil
-  config_param :loglevel, :string, :default => 'DEBUG'
+  config_param :log_level, :string, :default => 'DEBUG'
   config_param :log_path, :string, :default => nil
+
+  # record parameters
+  config_param :log_level_record, :string, :default => 'severity'
+  config_param :error_class_record, :string, :default => 'error_class'
+  config_param :batcktrace_record, :string, :default => 'error_backtrace'
+  config_param :error_message_record, :string, :default => 'error_message'
+  config_param :component_record, :string, :default => 'component'
+  config_param :action_record, :string, :default => 'action'
 
   def initialize
     super
@@ -78,22 +88,28 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
     end
 
     @sender = Airbrake::Sender.new(@aconf)
-    @loglevel = LOGLEVEL_MAP[@loglevel.upcase]
+    @log_level = LOG_LEVEL_MAP[@log_level.upcase]
   end
 
   def notification_needed(_tag, _time, record)
-    severity_map = LOGLEVEL_MAP[record['severity']]
+    severity_map = LOG_LEVEL_MAP[record[@log_level_record].upcase]
 
-    record['severity'] ? severity_map >= @loglevel : false
+    record[@log_level_record] ? severity_map >= @log_level : false
   end
 
   def build_error_message(record)
-    error_message = record['error_message'] ? record['error_message'] : 'Notification'
-    "[#{record['severity']}] #{error_message}"
+    error_message = record[@error_message_record] ? cut_down_message(record[@error_message_record]) :
+      (record['message'] ? cut_down_message(record['message']) : 'Notification')
+    "[#{record[@log_level_record]}] #{record[@error_class_record]} #{error_message}"
+  end
+
+  def cut_down_message(message)
+    message_to_s = message.is_a?(Array) ? message.join : message
+    message_to_s[0, CUT_OFF_CHAR]
   end
 
   def build_error_backtrace(record)
-    return record['error_backtrace'] ? record['error_backtrace'] : (record['backtrace'] ? record['backtrace'] : "")
+    record[@batcktrace_record] ? record[@batcktrace_record] : (record['backtrace'] ? record['backtrace'] : "")
   end
 
   def emit(tag, es, chain)
@@ -101,16 +117,18 @@ class Fluent::ErrbitGeesOutput < Fluent::Output
 
       next unless notification_needed(tag, time, record)
 
-      other_record = record.reject {|k, _| %w(error_class error_backtrace error_message application_name service_name).include?(k) }
+      other_record = record.reject {|k, _|
+        %W(#{@log_level_record} #{@error_class_record} #{@batcktrace_record}
+           #{@error_message_record} #{@component_record} #{@action_record} backtrace message).include?(k) }
 
       @notice  = Airbrake::Notice.new(@aconf.merge(
         :api_key       => @api_key,
-        :error_class   => record['error_class'],
+        :error_class   => record[@error_class_record],
         :backtrace     => build_error_backtrace(record),
         :error_message => build_error_message(record),
         :hostname      => record['hostname'],
-        :component     => record['application_name'],
-        :action        => record['service_name'],
+        :component     => record[@component_record],
+        :action        => record[@action_record],
         :cgi_data      => other_record
       ))
 
