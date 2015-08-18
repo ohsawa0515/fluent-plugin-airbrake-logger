@@ -11,8 +11,6 @@ class Fluent::AirbrakeLoggerOutput < Fluent::Output
     'DEBUG'    => 10
   }
 
-  CUT_OFF_CHAR = 60
-
   config_param :api_key, :string, :default => nil
   config_param :host, :string, :default => 'localhost'
   config_param :port, :integer, :default => '80'
@@ -43,6 +41,7 @@ class Fluent::AirbrakeLoggerOutput < Fluent::Output
   config_param :project_id, :string, :default => nil
   config_param :log_level, :string, :default => 'DEBUG'
   config_param :log_path, :string, :default => nil
+  config_param :cut_off_char, :integer, :default => 200
 
   # record parameters
   config_param :log_level_record, :string, :default => 'severity'
@@ -105,7 +104,7 @@ class Fluent::AirbrakeLoggerOutput < Fluent::Output
 
   def cut_down_message(message)
     message_to_s = message.is_a?(Array) ? message.join : message
-    message_to_s[0, CUT_OFF_CHAR]
+    message_to_s[0, @cut_off_char]
   end
 
   def build_error_backtrace(record)
