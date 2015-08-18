@@ -119,7 +119,7 @@ class Fluent::AirbrakeLoggerOutput < Fluent::Output
 
       other_record = record.reject {|k, _|
         %W(#{@log_level_record} #{@error_class_record} #{@batcktrace_record}
-           #{@error_message_record} #{@component_record} #{@action_record} backtrace message).include?(k) }
+           #{@error_message_record} #{@component_record} #{@action_record} backtrace).include?(k) }
 
       @notice  = Airbrake::Notice.new(@aconf.merge(
         :api_key       => @api_key,
