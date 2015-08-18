@@ -108,7 +108,7 @@ class Fluent::AirbrakeLoggerOutput < Fluent::Output
   end
 
   def build_error_backtrace(record)
-    record[@batcktrace_record] ? record[@batcktrace_record] : (record['backtrace'] ? record['backtrace'] : "")
+    record[@batcktrace_record] ? record[@batcktrace_record] : (record['backtrace'] ? record['backtrace'] : ["nil"])
   end
 
   def emit(tag, es, chain)
