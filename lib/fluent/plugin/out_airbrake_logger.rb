@@ -103,8 +103,7 @@ class Fluent::AirbrakeLoggerOutput < Fluent::Output
   end
 
   def cut_down_message(message)
-    message_to_s = message.is_a?(Array) ? message.join : message
-    message_to_s[0, @cut_off_char]
+    message_to_s.to_s[0, @cut_off_char]
   end
 
   def build_error_backtrace(record)
