@@ -82,7 +82,7 @@ class Fluent::AirbrakeLoggerOutput < Fluent::Output
       config.user_attribute     = @user_attribute.split(/s+/) if @user_attribute
       config.framework          = @framework if @framework
       config.project_id         = @project_id
-      config.logger             = Logger.new(@log_path) if @log_path
+      config.logger             = Logger.new(@log_path) unless log_path.nil? || log_path == "nil"
       @aconf = config
     end
 
