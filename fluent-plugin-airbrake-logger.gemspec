@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = "fluent-plugin-airbrake-logger"
-  spec.version       = "0.0.5"
+  spec.version       = "0.1.0"
   spec.authors       = ["Shuichi Ohsawa"]
   spec.email         = ["ohsawa0515@gmail.com"]
 
@@ -19,7 +19,10 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "fluentd", "~> 0.12.0"
-  spec.add_runtime_dependency "fluentd", "~> 0.12.0"
+  spec.add_development_dependency "fluentd", ">= 0.12.0", "< 1"
+  spec.add_development_dependency "airbrake", "~> 4.3.0"
+  spec.add_runtime_dependency "fluentd", ">= 0.12.0", "< 1"
   spec.add_runtime_dependency "airbrake", "~> 4.3.0"
+
+  spec.required_ruby_version = '>= 2.1'
 end
